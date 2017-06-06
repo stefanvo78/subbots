@@ -1,9 +1,17 @@
-const swaggerServer = require("swagger-server");
+const swagger = require("swagger-server");
 
 var _server = null;
 function startServer() {
-  var app = swaggerServer(__dirname + "/ConnectorAPI.json");
-  _server = app.listen(8000, function() {
+  var server = new swagger.Server();
+  //server.parse(__dirname + "/ConnectorAPI.json");
+  server.parse(__dirname + "/StateAPI.json");
+  server.dataStore.save(
+    new swagger.Resource('/v3/botstate/emulator/users/testClient', {}),
+    new swagger.Resource('/v3/botstate/emulator/conversations/testConversation', {}),
+    new swagger.Resource('/v3/botstate/emulator/conversations/testConversation/users/testClient', {})
+  );
+
+  _server = server.listen(8000, function() {
     console.log(`Mock Connector listening to ${_server.address().port}`)
   });
 }

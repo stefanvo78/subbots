@@ -78,7 +78,7 @@ describe('MasterBot', () => {
     );
   })
 
-  it('should route messages', (done) => {
+  it('should route regex messages', (done) => {
 
     MockConnectorServer.startServer();
 
@@ -100,4 +100,28 @@ describe('MasterBot', () => {
       done();
     });
   });
+
+  it('should route keyword messages', (done) => {
+
+    MockConnectorServer.startServer();
+
+    var master = new MasterBot(new botbuilder.ChatConnector());
+    master.set("storage", null);
+    master.startServer();
+
+    var sub = new SubBot(new botbuilder.ChatConnector());
+    sub.register("http://localhost:3978/api/control", "http://localhost:3979/api/messages", [ new intents.KeywordIntent("brian") ]);
+    sub.startServer({port:3979});
+
+    master.dialog("/", (session, args) => {
+    });
+    postMessage("http://localhost:3978/api/messages", "hi");
+
+    sub.dialog("/", (session, args) => {
+      sub.stopServer();
+      master.stopServer();
+      done();
+    });
+  });
+
 });

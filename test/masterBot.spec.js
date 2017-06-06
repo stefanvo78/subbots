@@ -6,8 +6,10 @@ const request = require('request');
 const botbuilder = require("botbuilder");
 
 const routers = require("../lib/Routers");
+const intents = require("../lib/Intents");
 const MasterBot = require("../lib/MasterBot").UniversalMasterBot;
 const SubBot = require("../lib/SubBot").UniversalSubBot;
+const MockConnectorServer = require("./MockConnector");
 
 function postMessage(url, msg) {
   var options =  {
@@ -16,7 +18,10 @@ function postMessage(url, msg) {
     json: { 
       type : "message",
       channelId : "emulator",
-      text : msg
+      text : msg,
+      from : { id : "testClient" },
+      serviceUrl : "http://localhost:8000",
+      conversation : { id : "testConversation" }
     }
   };
 
@@ -27,7 +32,7 @@ function postMessage(url, msg) {
 describe('SubBot', () => {
 
   it('should be constructable', () => {
-    var bot = new SubBot(new botbuilder.ChatConnector())
+    var bot = new SubBot(new botbuilder.ChatConnector());
     expect(bot).to.be.an('object');
   })
 
@@ -71,19 +76,22 @@ describe('MasterBot', () => {
         done();
       }
     );
-  }),
+  })
 
   it('should route messages', (done) => {
-    
-    var sub = new SubBot(new botbuilder.ChatConnector());
-    sub.addRoute(new routers.RegexRoute("*"));
-    sub.register("http://localhost:3978/api/control");
-    sub.startServer({port:3979});
+
+    MockConnectorServer.startServer();
 
     var master = new MasterBot(new botbuilder.ChatConnector());
+    master.set("storage", null);
+    master.startServer();
+
+    var sub = new SubBot(new botbuilder.ChatConnector());
+    sub.register("http://localhost:3978/api/control", "http://localhost:3979/api/messages", [ new intents.RegexIntent(".*") ]);
+    sub.startServer({port:3979});
+
     master.dialog("/", (session, args) => {
     });
-    master.startServer();
     postMessage("http://localhost:3978/api/messages", "hi");
 
     sub.dialog("/", (session, args) => {

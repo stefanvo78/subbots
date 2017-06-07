@@ -5,11 +5,14 @@ const MasterBot = require("./lib/MasterBot").UniversalMasterBot;
 var config = nconf.env().argv().file({file:'localConfig.json', search:true});
 
 function main() {
+
+  console.log("mainBot: starting...");
+
   var masterBot = new MasterBot(new botbuilder.ChatConnector({
     appId : config.get("MICROSOFT_APP_ID"),
     appPassword : config.get("MICROSOFT_APP_PASSWORD")
   }));
-  masterBot.startServer();
+  masterBot.startServer(config.get());
 
   masterBot.dialog("/", 
     (session, args) => {

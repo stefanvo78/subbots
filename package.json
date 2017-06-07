@@ -2,7 +2,7 @@
   "name": "subbots",
   "version": "0.0.1",
   "description": "Library to allow MSFT bots to be composed of subbits",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha test/**.spec.js"
   },

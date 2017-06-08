@@ -18,6 +18,7 @@ function main() {
     (session, args) => {
       session.send("masterBot: no subbot found to handle: " + session.message.text)
       session.send("(serviceUrl was: " + session.message.address.serviceUrl + ")");
+      session.send("(address was: " + JSON.stringify(session.message.address) + ")");
     }
   );
 

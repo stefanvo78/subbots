@@ -17,6 +17,7 @@ function main() {
   masterBot.dialog("/", 
     (session, args) => {
       session.send("masterBot: no subbot found to handle: " + session.message.text)
+      session.send("(serviceUrl was: " + session.message.address.serviceUrl + ")");
     }
   );
 

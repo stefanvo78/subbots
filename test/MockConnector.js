@@ -17,11 +17,13 @@ function startServer() {
 }
 
 function stopServer() {
-  if (_app) {
-    _app.close();
+  if (_server) {
+    _server.close();
+    _server = null;
   }
 }
 
 module.exports = {
-  startServer : startServer
+  startServer : startServer,
+  stopServer : stopServer
 }

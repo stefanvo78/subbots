@@ -78,27 +78,54 @@ describe('MasterBot', () => {
     );
   })
 
+  it('should register sharedCredentials subs', (done) => {
+    var master = new MasterBot(new botbuilder.ChatConnector());
+    master.startServer();
+
+    var sub = new SubBot(new botbuilder.ChatConnector());
+
+    sub.registerSharedCredentials(
+      "http://localhost:3978/api/subbots", 
+      "http://localhost:3979/api/messages",
+      '', '',
+      [ new intents.RegexIntent(".*") ]
+    )
+    .then((response) => {
+      master.stopServer();
+      expect(response.statusCode).to.equal(200);
+      done();      
+    });
+  })
+
   it('should route regex messages', (done) => {
 
     MockConnectorServer.startServer();
 
     var master = new MasterBot(new botbuilder.ChatConnector());
-    master.set("storage", null);
     master.startServer();
-
-    var sub = new SubBot(new botbuilder.ChatConnector());
-    sub.register("http://localhost:3978/api/control", "http://localhost:3979/api/messages", [ new intents.RegexIntent(".*") ]);
-    sub.startServer({port:3979});
-
     master.dialog("/", (session, args) => {
     });
-    postMessage("http://localhost:3978/api/messages", "hi");
+ 
+    var sub = new SubBot(new botbuilder.ChatConnector());
+    sub.registerSharedCredentials(
+      "http://localhost:3978/api/subbots", 
+      "http://localhost:3979/api/messages", 
+      '', '',
+      [ new intents.RegexIntent(".*") ]
+    )
+    .then((response) => {
+      expect(response.statusCode).to.equal(200);
+      sub.startServer({port:3979});
+      sub.dialog("/", (session, args) => {
+        expect(session.message.text).to.equal('hi');
+        sub.stopServer();
+        master.stopServer();
+        MockConnectorServer.stopServer();
+        done();
+      });
 
-    sub.dialog("/", (session, args) => {
-      sub.stopServer();
-      master.stopServer();
-      done();
-    });
+      postMessage("http://localhost:3978/api/messages", "hi");
+    })
   });
 
   it('should route keyword messages', (done) => {
@@ -106,22 +133,28 @@ describe('MasterBot', () => {
     MockConnectorServer.startServer();
 
     var master = new MasterBot(new botbuilder.ChatConnector());
-    master.set("storage", null);
     master.startServer();
-
-    var sub = new SubBot(new botbuilder.ChatConnector());
-    sub.register("http://localhost:3978/api/control", "http://localhost:3979/api/messages", [ new intents.KeywordIntent("brian") ]);
-    sub.startServer({port:3979});
-
     master.dialog("/", (session, args) => {
     });
-    postMessage("http://localhost:3978/api/messages", "hi");
 
-    sub.dialog("/", (session, args) => {
-      sub.stopServer();
-      master.stopServer();
-      done();
+    var sub = new SubBot(new botbuilder.ChatConnector());
+    sub.registerSharedCredentials(
+      "http://localhost:3978/api/subbots", 
+      "http://localhost:3979/api/messages", 
+      '', '',
+      [ new intents.RegexIntent(".*") ]
+    )
+    .then((response) => {
+      sub.startServer({port:3979});
+      sub.dialog("/", (session, args) => {
+        expect(session.message.text).to.equal('howdy');
+        sub.stopServer();
+        master.stopServer();
+        MockConnectorServer.stopServer();
+        done();
+      });
+
+      postMessage("http://localhost:3978/api/messages", "howdy");
     });
   });
-
 });

@@ -1,33 +1,19 @@
 'use strict'
 
-const expect = require('chai').expect;
-
-const request = require('request');
+const nconf = require("nconf");
+const request = require("request");
+const expect = require("chai").expect;
 const botbuilder = require("botbuilder");
+const directLineClient = require("botframework-directlinejs");
 
 const routers = require("../lib/Routers");
 const intents = require("../lib/Intents");
-const MasterBot = require("../lib/MasterBot").UniversalMasterBot;
 const SubBot = require("../lib/SubBot").UniversalSubBot;
+const MasterBot = require("../lib/MasterBot").UniversalMasterBot;
 const MockConnectorServer = require("./MockConnector");
 
-function postMessage(url, msg) {
-  var options =  {
-    uri : url,
-    method: 'POST',
-    json: { 
-      type : "message",
-      channelId : "emulator",
-      text : msg,
-      from : { id : "testClient" },
-      serviceUrl : "http://localhost:8000",
-      conversation : { id : "testConversation" }
-    }
-  };
-
-  request(options, (err, res, body) => {
-  });
-}
+let config = nconf.env().argv().file({file:'localConfig.json', search:true});
+let _mainBot = config.get("MASTER_BOT");
 
 describe('SubBot', () => {
 
@@ -45,8 +31,20 @@ describe('SubBot', () => {
       done();
     });
   });
+
+  it('can register with a master', (done) => {
+    var bot = new SubBot(new botbuilder.ChatConnector());
+    bot.registerDirectLine(`${_mainBot}/api/subbots`)
+    .then((conversationId) => {
+      //expect(conversationId).to.not.be.an("object");
+      expect(conversationId).to.not.equal(null);
+      done();
+    });
+  });
+
 });
 
+/*
 describe('MasterBot', () => {
 
   it('should be constructable', () => {
@@ -97,20 +95,51 @@ describe('MasterBot', () => {
     });
   })
 
+  it('should register directLine subs', (done) => {
+    var master = new MasterBot(new botbuilder.ChatConnector());
+    master.startServer();
+
+    var sub = new SubBot(new botbuilder.ChatConnector());
+
+    sub.registerDirectLine(
+      "http://localhost:3978/api/subbots",
+      "-DtPr646rhg.cwA.vEs.8qTSCP_zWhdmfDMvFiiKllP9Wu5cxy443JuZzgZPQ64",
+      [ new intents.RegexIntent(".*") ]
+    )
+    .then((response) => {
+      master.stopServer();
+      expect(response.statusCode).to.equal(200);
+      done();      
+    });
+  })
+
   it('should route regex messages', (done) => {
 
     MockConnectorServer.startServer();
+    var config = nconf.env().argv().file({file:'localConfig.json', search:true});
 
     var master = new MasterBot(new botbuilder.ChatConnector());
     master.startServer();
     master.dialog("/", (session, args) => {
     });
- 
-    var sub = new SubBot(new botbuilder.ChatConnector());
-    sub.registerSharedCredentials(
+
+    let directLineSecret = "-DtPr646rhg.cwA.vEs.8qTSCP_zWhdmfDMvFiiKllP9Wu5cxy443JuZzgZPQ64";
+    let subId = config.get("MICROSOFT_APP_ID");
+    let subPassword = config.get("MICROSOFT_APP_PASSWORD");
+
+    var sub = new SubBot(new botbuilder.ChatConnector({ 
+      appId : subId, 
+      appPassword : subPassword
+    }));
+
+    let directLine = new directLineClient.DirectLine({
+      webSocket : false,
+      secret : directLineSecret
+    });
+
+    sub.registerDirectLine(
       "http://localhost:3978/api/subbots", 
-      "http://localhost:3979/api/messages", 
-      '', '',
+      directLineSecret,
       [ new intents.RegexIntent(".*") ]
     )
     .then((response) => {
@@ -124,13 +153,18 @@ describe('MasterBot', () => {
         done();
       });
 
-      postMessage("http://localhost:3978/api/messages", "hi");
+      directLine.postActivity({from:{id:"master"}, type:"message", text : "hi"})
+      .subscribe(
+        id => console.log("Posted activity, assigned ID ", id),
+        error => console.log("Error posting activity", error)
+      );
     })
   });
 
   it('should route keyword messages', (done) => {
 
     MockConnectorServer.startServer();
+    var config = nconf.env().argv().file({file:'localConfig.json', search:true});
 
     var master = new MasterBot(new botbuilder.ChatConnector());
     master.startServer();
@@ -142,7 +176,7 @@ describe('MasterBot', () => {
       "http://localhost:3978/api/subbots", 
       "http://localhost:3979/api/messages", 
       '', '',
-      [ new intents.RegexIntent(".*") ]
+      [ new intents.KeywordIntent("brian") ]
     )
     .then((response) => {
       sub.startServer({port:3979});
@@ -158,3 +192,4 @@ describe('MasterBot', () => {
     });
   });
 });
+*/

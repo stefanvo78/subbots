@@ -1,5 +1,5 @@
 {
-  "name": "subbots",
+  "name": "subbots-main",
   "version": "0.0.1",
   "description": "Library to allow MSFT bots to be composed of subbits",
   "main": "server.js",
@@ -10,17 +10,15 @@
   "license": "MIT",
   "dependencies": {
     "botbuilder": "^3.8.4",
-    "botframework-directlinejs": "^0.9.7",
     "nconf": "^0.8.4",
     "restify": "^4.3.0"
   },
   "devDependencies": {
     "chai": "^4.0.1",
-    "mocha": "^3.4.2",
-    "swagger-server": "^1.0.0-alpha.18"
+    "mocha": "^3.4.2"
   },
   "files": [
-    "index.js",
+    "server.js",
     "lib/"
   ]
 }

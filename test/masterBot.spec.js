@@ -14,6 +14,7 @@ const MockConnectorServer = require("./MockConnector");
 
 let config = nconf.env().argv().file({file:'localConfig.json', search:true});
 let _mainBot = config.get("MASTER_BOT");
+var _secret = "nw5K5v0wAwA.cwA.sCs.1T54ALBU0rEJmtCUtZUYxB578VIY6s9ovGfmcZQr06o";
 
 describe('SubBot', () => {
 
@@ -33,16 +34,19 @@ describe('SubBot', () => {
   });
 
   it('can register with a master', (done) => {
+    _mainBot = "http://localhost:3978";
+    var master = new MasterBot(new botbuilder.ChatConnector());
+    master.startServer();
+
     var bot = new SubBot(new botbuilder.ChatConnector());
-    bot.registerDirectLine(`${_mainBot}/api/subbots`)
-    .then((conversationId) => {
-      //expect(conversationId).to.not.be.an("object");
-      expect(conversationId).to.not.equal(null);
+    bot.registerDirectLine(`${_mainBot}/api/subbots`, _secret, [ new intents.RegexIntent(".*") ])
+    .then((response) => {
+      expect(response).to.not.equal(null);
+      expect(response.statusCode).to.equal(201);
+      master.stopServer();
       done();
     });
   });
-
-});
 
 /*
 describe('MasterBot', () => {

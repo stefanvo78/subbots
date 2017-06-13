@@ -16,9 +16,14 @@ function main() {
 
   masterBot.dialog("/", 
     (session, args) => {
-      session.send("masterBot: no subbot found to handle: " + session.message.text)
-      session.send("(serviceUrl was: " + session.message.address.serviceUrl + ")");
-      session.send("(address was: " + JSON.stringify(session.message.address) + ")");
+      if (session.message.text.startsWith("/")) {
+        masterBot.handleSlashCommand(session);
+      }
+      else {
+        session.send("masterBot: no subbot found to handle: " + session.message.text)
+        session.send("(serviceUrl was: " + session.message.address.serviceUrl + ")");
+        session.send("(address was: " + JSON.stringify(session.message.address) + ")");
+      }
     }
   );
 

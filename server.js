@@ -1,7 +1,7 @@
 const nconf = require("nconf");
+const request = require("request");
 const botbuilder = require("botbuilder");
 const MasterBot = require("./lib/MasterBot").UniversalMasterBot;
-
 
 function main() {
 

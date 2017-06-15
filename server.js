@@ -6,13 +6,22 @@ const MasterBot = require("./lib/MasterBot").UniversalMasterBot;
 function main() {
 
   console.log("mainBot: starting...");
-  var config = nconf.env().argv().file({file:'localConfig.json', search:true});
+  var config = nconf.env().argv().file({file:'localConfig.json', search:true}).get();
 
   var masterBot = new MasterBot(new botbuilder.ChatConnector({
-    appId : config.get("MICROSOFT_APP_ID"),
-    appPassword : config.get("MICROSOFT_APP_PASSWORD")
+    appId : config.MICROSOFT_APP_ID,
+    appPassword : config.MICROSOFT_APP_PASSWORD
   }));
-  masterBot.startServer(config.get());
+  masterBot.startServer(config);
+  masterBot._server.get("/public/webchat", (req, res, next) => {
+    let html = `<html><head><title>IPA MainBot</title></head><body>
+    <p align="center">
+    <iframe width=800 height=600 src='https://webchat.botframework.com/embed/ipa-mainbot?s=${config.WEBCHAT_SECRET}'></iframe>
+    </p>
+    </body></html>`;
+    res.end(html);
+    next();
+  });
 
   masterBot.dialog("/", 
     (session, args) => {
@@ -28,7 +37,9 @@ function main() {
   );
 
   masterBot.on("conversationUpdate", (activity) => {
-    masterBot.send(new botbuilder.Message().address(activity.address).text("Welcome to the MasterBot"));
+    if (activity.source === "webchat") {
+      masterBot.send(new botbuilder.Message().address(activity.address).text("Welcome to the MasterBot"));
+    }
   });
 }
 

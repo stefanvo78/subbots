@@ -29,9 +29,7 @@ function main() {
         masterBot.handleSlashCommand(session);
       }
       else {
-        session.send("masterBot: no subbot found to handle: " + session.message.text)
-        session.send("(serviceUrl was: " + session.message.address.serviceUrl + ")");
-        session.send("(address was: " + JSON.stringify(session.message.address) + ")");
+        session.send("I'm sorry, I don't know how to handle that request");
       }
     }
   );

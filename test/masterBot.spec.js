@@ -13,9 +13,8 @@ const MasterBot = require("../lib/MasterBot").UniversalMasterBot;
 const MockConnectorServer = require("./MockConnector");
 
 let config = nconf.env().argv().file({file:'localConfig.json', search:true});
-let _mainBot = config.get("MASTER_BOT");
-var _secret = "nw5K5v0wAwA.cwA.sCs.1T54ALBU0rEJmtCUtZUYxB578VIY6s9ovGfmcZQr06o";
 
+/*
 describe('SubBot', () => {
 
   it('should be constructable', () => {
@@ -48,7 +47,6 @@ describe('SubBot', () => {
     });
   });
 
-/*
 describe('MasterBot', () => {
 
   it('should be constructable', () => {

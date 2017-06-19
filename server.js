@@ -39,6 +39,12 @@ function main() {
       masterBot.send(new botbuilder.Message().address(activity.address).text("Welcome to the MasterBot"));
     }
   });
+
+  // Load up the starting subbots
+  let subbots = config.SUBBOTS;
+  subbots.forEach((subbot) => {
+    masterBot._addSubbot(subbot);
+  });
 }
 
 main();

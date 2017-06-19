@@ -42,9 +42,14 @@ function main() {
 
   // Load up the starting subbots
   let subbots = config.SUBBOTS;
-  subbots.forEach((subbot) => {
-    masterBot._addSubbot(subbot);
-  });
+  if (subbots) {
+    if (typeof subbots === "string") {
+      subbots = JSON.parse(subbots);
+    }
+    subbots.forEach((subbot) => {
+      masterBot._addSubbot(subbot);
+    });
+  }
 }
 
 main();

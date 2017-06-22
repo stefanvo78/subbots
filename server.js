@@ -1,12 +1,16 @@
 const nconf = require("nconf");
 const request = require("request");
 const botbuilder = require("botbuilder");
+const appInsights = require("applicationinsights");
 const MasterBot = require("./lib/MasterBot").UniversalMasterBot;
 
 function main() {
 
   console.log("mainBot: starting...");
   var config = nconf.env().argv().file({file:'localConfig.json', search:true}).get();
+
+  appInsights.setup(config.APP_INSIGHTS_KEY);
+  appInsights.start();
 
   var masterBot = new MasterBot(new botbuilder.ChatConnector({
     appId : config.MICROSOFT_APP_ID,

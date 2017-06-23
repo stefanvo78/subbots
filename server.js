@@ -27,20 +27,22 @@ function main() {
     next();
   });
 
+  let errorMessage = config.ERROR_MESSAGE || "I'm sorry, I don't know how to handle that request";
   masterBot.dialog("/", 
     (session, args) => {
-      if (session.message.text.startsWith("/")) {
+      if (session.message.text && session.message.text.startsWith("/")) {
         masterBot.handleSlashCommand(session);
       }
       else {
-        session.send("I'm sorry, I don't know how to handle that request");
+        session.send(errorMessage);
       }
     }
   );
 
+  let welcomeMessage = config.WELCOME_MESSAGE || "Welcome to the Master Bot";
   masterBot.on("conversationUpdate", (activity) => {
     if (activity.source === "webchat") {
-      masterBot.send(new botbuilder.Message().address(activity.address).text("Welcome to the MasterBot"));
+      masterBot.send(new botbuilder.Message().address(activity.address).text(welcomeMessage));
     }
   });
 

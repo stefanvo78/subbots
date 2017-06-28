@@ -20,7 +20,7 @@ function main() {
   masterBot._server.get("/public/webchat", (req, res, next) => {
     let html = `<html><head><title>IPA MainBot</title></head><body>
     <p align="center">
-    <iframe width=800 height=600 src='https://webchat.botframework.com/embed/ipa-mainbot?s=${config.WEBCHAT_SECRET}'></iframe>
+    <iframe width=800 height=600 src='https://webchat.botframework.com/embed/${config.BOT_HANDLE}?s=${config.WEBCHAT_SECRET}'></iframe>
     </p>
     </body></html>`;
     res.end(html);
@@ -28,6 +28,7 @@ function main() {
   });
 
   let errorMessage = config.ERROR_MESSAGE || "I'm sorry, I don't know how to handle that request";
+
   masterBot.dialog("/", 
     (session, args) => {
       if (session.message.text && session.message.text.startsWith("/")) {

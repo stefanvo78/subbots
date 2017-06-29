@@ -27,7 +27,7 @@ function main() {
     next();
   });
 
-  let introMessage = config.ERROR_MESSAGE || "INSERT INTRO TEXT HERE";
+  let introMessage = config.INTRO_MESSAGE || "INSERT INTRO TEXT HERE";
   let errorMessage = config.ERROR_MESSAGE || "I'm sorry, I don't know how to handle that request";
 
   masterBot.dialog("/", 

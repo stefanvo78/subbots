@@ -42,6 +42,9 @@ function main() {
         else if (session.message.text.toLowerCase().startsWith("explain assistant")) {
           session.send(introMessage);
         }
+        else {
+          session.send(errorMessage);
+        }
       }
     }
   );

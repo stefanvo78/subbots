@@ -27,15 +27,21 @@ function main() {
     next();
   });
 
+  let introMessage = config.ERROR_MESSAGE || "INSERT INTRO TEXT HERE";
   let errorMessage = config.ERROR_MESSAGE || "I'm sorry, I don't know how to handle that request";
 
   masterBot.dialog("/", 
     (session, args) => {
-      if (session.message.text && session.message.text.startsWith("/")) {
-        masterBot.handleSlashCommand(session);
+      if (!session.message.text || session.message.text.length === 0) {
+        session.send(errorMessage);
       }
       else {
-        session.send(errorMessage);
+        if (session.message.text.startsWith("/")) {
+          masterBot.handleSlashCommand(session);
+        }
+        else if (session.message.text.toLowerCase().startsWith("explain assistant")) {
+          session.send(introMessage);
+        }
       }
     }
   );
@@ -47,6 +53,18 @@ function main() {
     }
   });
 
+  // Load up any builtins. Builtins are always handled by the defaultHandler except when
+  // a subbot has the focus
+  let builtins = config.BUILTINS;
+  if (builtins) {
+    if (typeof builtins === "string") {
+      builtins = JSON.parse(builtins);
+    }
+    builtins.forEach((builtin) => {
+      masterBot.addBuiltin(builtin);
+    })
+  }
+
   // Load up the starting subbots
   let subbots = config.SUBBOTS;
   if (subbots) {
@@ -54,7 +72,7 @@ function main() {
       subbots = JSON.parse(subbots);
     }
     subbots.forEach((subbot) => {
-      masterBot._addSubbot(subbot);
+      masterBot.addSubbot(subbot);
     });
   }
 }
